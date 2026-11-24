@@ -344,7 +344,7 @@ function drawPage() {
   );
   // Globe with a crack, right side of the lead box.
   const gx = 800;
-  const gy = ly + 150;
+  const gy = ly + 138;
   disc(gx, gy, 96, BLUE);
   disc(gx - 34, gy - 30, 26, GREEN);
   disc(gx + 30, gy + 26, 30, GREEN);
@@ -353,14 +353,18 @@ function drawPage() {
   arc(gx, gy, 62, 0, 359, hex("#9fc6e8"));
   vline(gx, gy - 96, 192, hex("#9fc6e8"));
   hline(gx - 96, gy, 192, hex("#9fc6e8"));
-  // Jagged crack across the globe.
-  thickLine(gx - 78, gy - 88, gx - 30, gy - 40, 5, BLACK);
-  thickLine(gx - 30, gy - 40, gx - 52, gy + 6, 5, BLACK);
-  thickLine(gx - 52, gy + 6, gx + 4, gy + 44, 5, BLACK);
-  thickLine(gx + 4, gy + 44, gx - 8, gy + 92, 5, BLACK);
-  // Red NO DEAL stamp.
-  box(gx - 118, gy + 66, 236, 46, RED, 4);
-  centerText("NO DEAL", gx, gy + 80, 3, RED);
+  // Jagged crack in the upper-left of the globe: thinner, shorter and
+  // branched, so it reads as a fracture rather than a lightning bolt.
+  thickLine(gx - 46, gy - 86, gx - 24, gy - 54, 3, BLACK);
+  thickLine(gx - 24, gy - 54, gx - 44, gy - 22, 3, BLACK);
+  thickLine(gx - 44, gy - 22, gx - 16, gy + 6, 3, BLACK);
+  thickLine(gx - 16, gy + 6, gx - 28, gy + 30, 3, BLACK);
+  thickLine(gx - 24, gy - 54, gx - 2, gy - 46, 2, BLACK);
+  thickLine(gx - 2, gy - 46, gx + 8, gy - 60, 2, BLACK);
+  // Red NO DEAL stamp, clear below the globe, with a double border.
+  box(gx - 118, gy + 100, 236, 40, RED, 4);
+  box(gx - 111, gy + 107, 222, 26, RED, 1);
+  centerText("NO DEAL", gx, gy + 110, 3, RED);
 }
 
 // ---- row 2: Iran war (left) and Ukraine at sea (right), y 452..700
@@ -381,18 +385,56 @@ function drawIran() {
   // Sea strip with a tanker and missile arcs at the bottom of the box.
   const sy = b.y + b.h - 42;
   rect(b.x + 2, sy, b.w - 4, 40, SEA);
-  // Tanker silhouette.
-  rect(b.x + 40, sy + 12, 150, 16, INK);
-  rect(b.x + 160, sy + 2, 26, 12, INK);
-  rect(b.x + 128, sy - 4, 10, 18, RED);
-  // Missile arcs and burst.
-  thickLine(b.x + 330, sy + 38, b.x + 380, sy - 6, 3, ORANGE);
-  thickLine(b.x + 380, sy - 6, b.x + 420, sy + 26, 3, ORANGE);
-  disc(b.x + 380, sy - 6, 5, GOLD);
-  disc(b.x + 420, sy + 26, 7, ORANGE);
-  disc(b.x + 430, sy + 18, 4, GOLD);
-  line(b.x + 300, sy + 30, b.x + 330, sy + 38, WHITE);
-  line(b.x + 300, sy + 34, b.x + 330, sy + 38, WHITE);
+  // Tanker with a shaped hull: tapered bow, deckhouse, funnel, wake.
+  fillPoly(
+    [
+      [b.x + 36, sy + 10],
+      [b.x + 170, sy + 10],
+      [b.x + 196, sy + 20],
+      [b.x + 186, sy + 32],
+      [b.x + 44, sy + 32],
+    ],
+    INK
+  );
+  // Deck line, deckhouse and funnel.
+  hline(b.x + 40, sy + 12, 132, hex("#4a4a4a"));
+  rect(b.x + 148, sy - 2, 26, 12, INK);
+  rect(b.x + 152, sy + 1, 18, 4, WHITE);
+  rect(b.x + 120, sy - 6, 12, 16, INK);
+  rect(b.x + 120, sy - 6, 12, 5, RED);
+  // Wake lines under the hull.
+  line(b.x + 24, sy + 34, b.x + 40, sy + 38, WHITE);
+  line(b.x + 186, sy + 34, b.x + 204, sy + 38, WHITE);
+  hline(b.x + 46, sy + 34, 138, WHITE);
+  // Missile in flight on a rising arc: dashed white trail, white body,
+  // orange flame — plus a starburst where a second missile hits the bow.
+  const mx0 = b.x + 420;
+  const my0 = sy + 38;
+  const mx1 = b.x + 352;
+  const my1 = sy - 4;
+  for (let s = 0; s < 8; s++) {
+    const t0 = s / 8;
+    const t1 = (s + 0.55) / 8;
+    const ax = mx0 + (mx1 - mx0) * t0;
+    const ay = my0 + (my1 - my0) * t0 - 10 * Math.sin(t0 * Math.PI);
+    const bx = mx0 + (mx1 - mx0) * t1;
+    const by = my0 + (my1 - my0) * t1 - 10 * Math.sin(t1 * Math.PI);
+    thickLine(Math.round(ax), Math.round(ay), Math.round(bx), Math.round(by), 2, WHITE);
+  }
+  // Missile body at the arc apex, nose up-left, flame tail behind.
+  thickLine(mx1 + 8, my1 + 6, mx1 - 8, my1 - 6, 4, WHITE);
+  disc(mx1 - 10, my1 - 8, 3, INK);
+  disc(mx1 + 12, my1 + 9, 4, ORANGE);
+  disc(mx1 + 16, my1 + 12, 3, GOLD);
+  // Starburst impact at the tanker's bow.
+  const ex = b.x + 196;
+  const ey = sy + 14;
+  for (let a = 0; a < 360; a += 30) {
+    const rad = (a * Math.PI) / 180;
+    thickLine(ex, ey, Math.round(ex + 16 * Math.cos(rad)), Math.round(ey + 16 * Math.sin(rad)), 2, ORANGE);
+  }
+  disc(ex, ey, 7, GOLD);
+  disc(ex, ey, 4, WHITE);
 }
 function drawUkraine() {
   const b = storyBox(520, 452, 476, 248, "UKRAINE TAKES THE WAR TO SEA", NAVY);
@@ -402,30 +444,49 @@ function drawUkraine() {
     "Naval drones sink the corvette Merkury at Benghazi, Zelenskyy confirms. Russian strikes kill at least 11 in Dymer, near Kyiv.",
     b.x + 16, b.y + 102, 2, INK, b.w - 32, 18
   );
-  // Sea strip: listing warship, smoke, drone above.
+  // Sea strip: a listing warship taking fire, smoke column, sea drone.
   const sy = b.y + b.h - 42;
   rect(b.x + 2, sy, b.w - 4, 40, SEA);
+  // Hull listing to starboard: bow down, stern up, sloped bow.
   fillPoly(
     [
-      [b.x + 60, sy + 14],
-      [b.x + 210, sy + 14],
-      [b.x + 196, sy + 30],
-      [b.x + 74, sy + 30],
+      [b.x + 52, sy + 12],
+      [b.x + 216, sy + 18],
+      [b.x + 228, sy + 26],
+      [b.x + 212, sy + 34],
+      [b.x + 62, sy + 30],
     ],
     INK
   );
-  rect(b.x + 110, sy + 2, 14, 14, INK);
-  rect(b.x + 150, sy + 6, 10, 10, INK);
-  // Smoke puffs, kept below the body text.
-  disc(b.x + 125, sy + 2, 8, GREY);
-  disc(b.x + 145, sy - 8, 10, GREY);
-  disc(b.x + 168, sy - 18, 8, GREY);
-  // Sea drone skimming the water.
-  rect(b.x + 320, sy + 22, 34, 8, BLACK);
-  disc(b.x + 322, sy + 20, 3, BLACK);
-  disc(b.x + 352, sy + 20, 3, BLACK);
-  line(b.x + 300, sy + 26, b.x + 320, sy + 26, WHITE);
-  line(b.x + 354, sy + 26, b.x + 380, sy + 26, WHITE);
+  // Deck line, superstructure, mast and funnel.
+  line(b.x + 54, sy + 13, b.x + 214, sy + 19, hex("#4a4a4a"));
+  rect(b.x + 100, sy - 2, 30, 16, INK);
+  rect(b.x + 104, sy + 1, 22, 4, WHITE);
+  vline(b.x + 115, sy - 18, 16, INK);
+  hline(b.x + 108, sy - 16, 14, INK);
+  rect(b.x + 152, sy + 2, 12, 14, INK);
+  rect(b.x + 152, sy + 2, 12, 4, RED);
+  // Gun turret forward with its barrel.
+  rect(b.x + 184, sy + 10, 18, 10, INK);
+  thickLine(b.x + 202, sy + 13, b.x + 216, sy + 10, 3, INK);
+  // Flames at the hit point, then a smoke column drifting right.
+  disc(b.x + 140, sy + 8, 6, ORANGE);
+  disc(b.x + 147, sy + 3, 5, GOLD);
+  disc(b.x + 133, sy + 3, 4, ORANGE);
+  disc(b.x + 145, sy - 2, 9, GREY);
+  disc(b.x + 156, sy - 12, 11, GREY);
+  disc(b.x + 170, sy - 20, 9, GREY);
+  // White waterline and wake under the hull.
+  hline(b.x + 56, sy + 35, 164, WHITE);
+  line(b.x + 36, sy + 30, b.x + 52, sy + 35, WHITE);
+  line(b.x + 220, sy + 35, b.x + 238, sy + 30, WHITE);
+  // Sea drone skimming the water, bigger, with a wake.
+  rect(b.x + 318, sy + 20, 46, 9, BLACK);
+  disc(b.x + 320, sy + 18, 3, BLACK);
+  disc(b.x + 362, sy + 18, 3, BLACK);
+  rect(b.x + 338, sy + 14, 6, 6, BLACK);
+  line(b.x + 288, sy + 25, b.x + 318, sy + 25, WHITE);
+  line(b.x + 364, sy + 25, b.x + 402, sy + 25, WHITE);
 }
 
 // ---- row 3: markets (left) and US House (right), y 716..920
