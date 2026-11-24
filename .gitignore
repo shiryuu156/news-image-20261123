@@ -1,0 +1,5 @@
+# local-only files: kit + transcripts never go to GitHub
+kit.tar.gz
+news-image-20261123-kit/
+transcripts.tar.gz
+out/
